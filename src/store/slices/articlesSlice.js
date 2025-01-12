@@ -3,10 +3,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchArticles = createAsyncThunk(
   'articles/fetchArticles',
   async (filter = 'latest') => {
-    const response = await fetch(`/api/articles/read.php?filter=${filter}`);
+    const response = await fetch(`http://localhost/project/api/articles/read.php?filter=${filter}`);
     if (!response.ok) {
       throw new Error('Failed to fetch articles');
     }
+    //console.log(response.json());
     return response.json();
   }
 );
