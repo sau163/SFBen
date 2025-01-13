@@ -10,20 +10,19 @@ $db = $database->getConnection();
 
 $article = new Article($db);
 
-$filter = isset($_GET['filter']) ? $_GET['filter'] : 'latest';
-$stmt = $article->read($filter);
-$num = $stmt->rowCount();
+$id = isset($_GET['id']) ? intval($_GET['id']) : null;
 
-if($num > 0) {
-    $articles_arr = array();
-    $articles_arr["records"] = array();
+if ($id) {
+    $stmt = $article->readSingle($id);
 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    if ($stmt->rowCount() > 0) {
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         extract($row);
 
         $article_item = array(
             "id" => $id,
             "title" => $title,
+            "content" => $content,
             "author" => $author,
             "category" => $category,
             "image_url" => $image_url,
@@ -31,13 +30,14 @@ if($num > 0) {
             "created_at" => $created_at
         );
 
-        array_push($articles_arr["records"], $article_item);
+        http_response_code(200);
+        echo json_encode($article_item);
+    } else {
+        http_response_code(404);
+        echo json_encode(array("message" => "Article not found."));
     }
-
-    http_response_code(200);
-    echo json_encode($articles_arr);
 } else {
-    http_response_code(404);
-    echo json_encode(array("message" => "No articles found."));
+    http_response_code(400);
+    echo json_encode(array("message" => "Invalid article ID."));
 }
 ?>

@@ -7,7 +7,17 @@ export const fetchArticles = createAsyncThunk(
     if (!response.ok) {
       throw new Error('Failed to fetch articles');
     }
-    //console.log(response.json());
+    return response.json();
+  }
+);
+
+export const fetchArticleById = createAsyncThunk(
+  'articles/fetchArticleById',
+  async (articleId) => {
+    const response = await fetch(`http://localhost/project/api/articles/read_single.php?id=${articleId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch article');
+    }
     return response.json();
   }
 );
@@ -18,12 +28,15 @@ const articlesSlice = createSlice({
     items: [],
     status: 'idle',
     error: null,
-    activeFilter: 'latest'
+    activeFilter: 'latest',
+    singleArticle: null,
+    singleArticleStatus: 'idle',
+    singleArticleError: null,
   },
   reducers: {
     setFilter: (state, action) => {
       state.activeFilter = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -37,6 +50,18 @@ const articlesSlice = createSlice({
       .addCase(fetchArticles.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+      });
+    builder
+      .addCase(fetchArticleById.pending, (state) => {
+        state.singleArticleStatus = 'loading';
+      })
+      .addCase(fetchArticleById.fulfilled, (state, action) => {
+        state.singleArticleStatus = 'succeeded';
+        state.singleArticle = action.payload;
+      })
+      .addCase(fetchArticleById.rejected, (state, action) => {
+        state.singleArticleStatus = 'failed';
+        state.singleArticleError = action.error.message;
       });
   },
 });

@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchArticles, setFilter } from '../store/slices/articlesSlice';
+import { useNavigate } from 'react-router-dom';
 
 function ArticleList() {
   const dispatch = useDispatch();
   const { items, status, activeFilter } = useSelector((state) => state.articles);
   const tabs = ['Latest', 'Most Popular', "Editors' Picks"];
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchArticles(activeFilter));
@@ -13,6 +15,10 @@ function ArticleList() {
 
   const handleTabClick = (filter) => {
     dispatch(setFilter(filter.toLowerCase()));
+  };
+
+  const handleArticleClick = (articleId) => {
+    navigate(`/article/${articleId}`);
   };
 
   if (status === 'loading') {
@@ -43,7 +49,11 @@ function ArticleList() {
 
       <div className="space-y-8">
         {items.map((article) => (
-          <article key={article.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <article
+            key={article.id}
+            className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer"
+            onClick={() => handleArticleClick(article.id)}
+          >
             <div className="md:flex">
               <div className="md:flex-1 p-6">
                 <span className="text-purple-600 text-sm font-medium">
